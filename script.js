@@ -134,3 +134,46 @@ interactiveSurfaces.forEach(surface => {
   precisePointer.addEventListener('change', reset);
   document.addEventListener('visibilitychange', () => { if (document.hidden) reset(); });
 });
+
+const contactForm = document.querySelector('.contact-form');
+if (contactForm) {
+  let submitting = false;
+  contactForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (submitting || !contactForm.reportValidity()) return;
+    const button = contactForm.querySelector('button[type="submit"]');
+    const status = contactForm.querySelector('.form-status');
+    const original = button.innerHTML;
+    const values = Object.fromEntries(new FormData(contactForm));
+    if (values._honey) return;
+    submitting = true;
+    button.disabled = true;
+    button.textContent = 'Sending…';
+    contactForm.setAttribute('aria-busy', 'true');
+    status.textContent = '';
+    status.removeAttribute('data-error');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/abhyudayrakam0404@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(values),
+        signal: controller.signal,
+      });
+      const result = await response.json();
+      if (!response.ok || String(result.success) !== 'true') throw new Error('Submission not confirmed');
+      status.textContent = 'Message submitted. Thank you for getting in touch.';
+      contactForm.reset();
+    } catch {
+      status.dataset.error = 'true';
+      status.textContent = 'We couldn’t confirm your submission. Your message is still here—try again or email me directly.';
+    } finally {
+      clearTimeout(timeout);
+      submitting = false;
+      button.disabled = false;
+      button.innerHTML = original;
+      contactForm.removeAttribute('aria-busy');
+    }
+  });
+}

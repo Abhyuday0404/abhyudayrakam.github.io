@@ -39,3 +39,15 @@ its build command to be configured in the dashboard; the custom build command in
 `wrangler.jsonc` is for local Wrangler usage.
 
 The explicit assets configuration avoids Wrangler's automatic framework setup.
+
+## Contact email delivery
+
+The contact form forwards submissions through FormSubmit to
+`abhyudayrakam0404@gmail.com`. The recipient must activate the form using the
+confirmation email sent by FormSubmit after its first submission. Check Spam if
+needed. Until activation is completed, inbox delivery is not verified.
+
+The form uses native required/email validation, a honeypot, and an AJAX request
+with a timeout and visible failure feedback. If JavaScript is unavailable, it
+submits directly to FormSubmit and returns to `/thanks.html` after submission.
+No email credentials or API keys are stored in this repository.
