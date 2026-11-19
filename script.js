@@ -162,7 +162,14 @@ if (contactForm) {
         signal: controller.signal,
       });
       const result = await response.json();
-      if (!response.ok || String(result.success) !== 'true') throw new Error('Submission not confirmed');
+      if (!response.ok || String(result.success) !== 'true') {
+        if (/activat|verify.{0,20}email|confirm.{0,20}email/i.test(String(result.message || ''))) {
+          status.dataset.error = 'true';
+          status.textContent = 'Email delivery is awaiting activation. Please use the direct email link below for now.';
+          return;
+        }
+        throw new Error('Submission not confirmed');
+      }
       status.textContent = 'Message submitted. Thank you for getting in touch.';
       contactForm.reset();
     } catch {
