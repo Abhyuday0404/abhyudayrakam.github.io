@@ -223,3 +223,5 @@ footer a:hover svg, footer a:focus-visible svg { transform: translateY(-3px); }
 .form-note { color: var(--muted); margin: 1rem 0 0; font-size: .75rem; line-height: 1.7; }
 .form-note a { color: var(--text); }
 @media (max-width: 760px) { .contact-form { grid-template-columns: 1fr; gap: 2rem; margin-top: 2.5rem; } }
+
+.field-help { display: block; margin-top: .6rem; color: var(--muted); font-size: .73rem; line-height: 1.6; }
