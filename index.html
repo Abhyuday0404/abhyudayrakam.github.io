@@ -120,9 +120,14 @@
             <article class="project-card">
               <div class="project-top">
                 <h3>MedSwap</h3>
-                <span>RAG System</span>
+                <span>Drug Substitution RAG</span>
+                <span class="project-meta">Feb 2025–Jun 2026 · Solo project</span>
+                <span class="project-stack">Gemini 1.5 Flash, Gemini text-embedding-004, DataStax Astra DB, FastAPI, React, Vite, Tailwind CSS</span>
               </div>
-              <p>Built a medicine substitution assistant for Indian patients using a retrieval-augmented generation pipeline, Gemini embeddings, Astra DB, and a FastAPI + React workflow with source-grounded, low-hallucination responses.</p>
+              <div class="project-details">
+                <p>Built a RAG-based medicine substitution assistant for Indian patients to find medicines with the same active composition when a prescribed drug is unavailable locally, using official sources including Jan Aushadhi, NFI, and the WHO Essential Medicines List.</p>
+                <p>Used Gemini for structured extraction and embeddings, Astra DB for vector storage, and a FastAPI backend with a React interface. Designed the assistant to cite sources and return “not found” rather than guess.</p>
+              </div>
             </article>
             <article class="project-card">
               <div class="project-top">
@@ -130,6 +135,7 @@
                 <span>Global news intelligence and event monitoring</span>
                 <span class="project-meta">Feb–May 2026</span>
                 <span class="project-stack">Python, DuckDB, BigQuery, FastAPI, React</span>
+                <a class="project-link" href="https://github.com/ArceusOmkar7/gniem">View on GitHub <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></a>
               </div>
               <div class="project-details">
                 <p>Contributed to DuckDB data access and hot/cold query routing on a team-built GDELT analytics platform: recent queries use DuckDB and Parquet; historical queries use BigQuery.</p>

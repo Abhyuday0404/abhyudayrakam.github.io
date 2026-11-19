@@ -144,3 +144,6 @@ footer a:hover { color: var(--accent); }
 .project-top .project-meta { color: var(--muted); margin-top: .7rem; }
 .project-top .project-stack { color: var(--muted); margin-top: .5rem; font-size: .75rem; line-height: 1.8; }
 .project-details p + p { margin-top: 1rem; }
+
+.project-link { display: inline-flex; align-items: center; gap: .45rem; margin-top: 1rem; padding-block: .4rem; color: var(--accent); font-size: .78rem; }
+.project-link:hover { color: var(--text); }
