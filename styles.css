@@ -147,3 +147,56 @@ footer a:hover { color: var(--accent); }
 
 .project-link { display: inline-flex; align-items: center; gap: .45rem; margin-top: 1rem; padding-block: .4rem; color: var(--accent); font-size: .78rem; }
 .project-link:hover { color: var(--text); }
+
+/* A drawn signature: geometry supports the existing monogram, not a new logo. */
+.avatar { position: relative; width: 240px; max-width: 100%; height: 180px; display: grid; place-items: center; isolation: isolate; }
+.signature-orbit { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.orbit-track { stroke: var(--accent); stroke-width: .7; opacity: .55; }
+.orbit-cross { stroke: var(--accent); stroke-width: .5; opacity: .2; }
+.orbit-point { fill: var(--accent); }
+.monogram { display: block; position: relative; background: var(--bg); padding: 0 .08em; line-height: .9; }
+.word-window { display: inline-block; overflow: clip; vertical-align: bottom; padding-bottom: .12em; margin-bottom: -.12em; }
+.word-window > span { display: inline-block; }
+.btn-primary { position: relative; overflow: hidden; isolation: isolate; }
+.btn-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 25%, #fff5 50%, transparent 75%); transform: translateX(-130%); pointer-events: none; }
+.project-card::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse 350px 180px at var(--pointer-x, 50%) var(--pointer-y, 50%), #d5b77d0c, transparent); opacity: 0; pointer-events: none; transition: opacity 250ms; }
+.project-card { isolation: isolate; }
+.project-top h3 { transition: color 250ms, translate 400ms var(--ease); }
+.project-link svg, footer a svg { transition: transform 280ms var(--ease); }
+.project-link:hover svg, .project-link:focus-visible svg { transform: translate(3px, -3px); }
+footer a:hover svg, footer a:focus-visible svg { transform: translateY(-3px); }
+.section-heading { position: relative; }
+.section-heading::after { content: ''; display: block; width: 3rem; height: 1px; margin-top: 1.4rem; background: var(--accent); transform-origin: left; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1.is-pending .word-window > span { transform: translateY(110%); }
+  .hero h1.is-visible .word-window > span { animation: headline-arrive 850ms var(--ease) both; }
+  .hero h1.is-visible .word-window:nth-child(2) > span { animation-delay: 100ms; }
+  .hero-card.is-visible .orbit-track { animation: orbit-draw 1400ms var(--ease) both; }
+  .hero-card.is-visible .orbit-cross, .hero-card.is-visible .orbit-point { animation: signature-appear 800ms ease 450ms both; }
+  .section-heading.is-pending::after { transform: scaleX(0); }
+  .section-heading.is-visible::after { transition: transform 850ms var(--ease) 100ms; transform: scaleX(1); }
+  .btn-primary:hover::after, .btn-primary:focus-visible::after { animation: button-light 650ms var(--ease); }
+  .skills-list > span[data-reveal] { transition-duration: 450ms; }
+  .skills-list > span.is-pending { transform: translateY(12px); }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .hero-card .avatar { translate: var(--signature-x, 0px) var(--signature-y, 0px); transition: translate 500ms var(--ease); }
+  .project-card.pointer-active::before { opacity: 1; }
+  .project-card:hover .project-top h3 { translate: 6px 0; color: var(--accent); }
+  .skills-list span.is-visible:hover { translate: 0 -3px; transition-delay: 0ms; }
+  .skills-list span { transition-property: opacity, transform, translate, color, border-color; }
+}
+@keyframes headline-arrive { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes orbit-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; rotate: -12deg; transform-origin: center; } to { stroke-dasharray: 1; stroke-dashoffset: 0; rotate: 0deg; transform-origin: center; } }
+@keyframes signature-appear { from { opacity: 0; } }
+@keyframes button-light { to { transform: translateX(130%); } }
+@media (max-width: 760px) {
+  .hero-card .avatar { width: 70px; height: 80px; }
+  .signature-orbit { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .word-window > span, .orbit-track, .orbit-cross, .orbit-point, .btn-primary::after { animation: none !important; }
+  .hero-card .avatar, .project-top h3, .project-link svg, footer a svg { translate: none; transform: none; transition: color 150ms; }
+}
+/* Leave room for the serif's italic overhang during the headline reveal. */
+.word-window { padding-inline: .08em; margin-inline: -.08em; }

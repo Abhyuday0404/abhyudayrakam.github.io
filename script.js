@@ -59,7 +59,7 @@ updateScroll();
 
 // Reveal once when the work enters view. No dependency, scroll hijacking, or hidden fallback.
 let observer;
-const targets = [...document.querySelectorAll('.hero-copy > *, .hero-card, .section-heading, .about-card, .skills-list, .project-card, .contact-card')];
+const targets = [...document.querySelectorAll('.hero-copy > *, .hero-card, .section-heading, .about-card, .skills-list > span, .project-card, .contact-card')];
 function setupReveals() {
   observer?.disconnect();
   targets.forEach(el => {
@@ -77,7 +77,11 @@ function setupReveals() {
   }, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
   targets.forEach((el, index) => {
     el.dataset.reveal = '';
-    el.style.setProperty('--reveal-delay', el.parentElement?.classList.contains('hero-copy') ? `${Math.min(index, 3) * 65}ms` : '0ms');
+    const siblings = [...el.parentElement.children];
+    const delay = el.parentElement.classList.contains('skills-list')
+      ? (siblings.indexOf(el) % 6) * 45
+      : el.parentElement.classList.contains('hero-copy') ? Math.min(index, 3) * 65 : 0;
+    el.style.setProperty('--reveal-delay', delay + 'ms');
     observer.observe(el);
     el.classList.remove('is-visible');
     el.classList.add('is-pending');
@@ -95,3 +99,38 @@ document.addEventListener('focusin', event => {
   }
 });
 window.addEventListener('beforeprint', () => targets.forEach(el => el.classList.remove('is-pending')));
+
+// Pointer accents are confined to their surfaces and never run on touch devices.
+const precisePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+const interactiveSurfaces = [...document.querySelectorAll('.hero-card, .project-card')];
+interactiveSurfaces.forEach(surface => {
+  let frame = 0;
+  function reset() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    surface.style.removeProperty('--pointer-x');
+    surface.style.removeProperty('--pointer-y');
+    surface.style.removeProperty('--signature-x');
+    surface.style.removeProperty('--signature-y');
+    surface.classList.remove('pointer-active');
+  }
+  surface.addEventListener('pointermove', event => {
+    if (motion.matches || !precisePointer.matches || event.pointerType === 'touch') return;
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      const box = surface.getBoundingClientRect();
+      const x = Math.max(0, Math.min(box.width, event.clientX - box.left));
+      const y = Math.max(0, Math.min(box.height, event.clientY - box.top));
+      surface.style.setProperty('--pointer-x', x + 'px');
+      surface.style.setProperty('--pointer-y', y + 'px');
+      surface.style.setProperty('--signature-x', ((x / box.width - .5) * 10) + 'px');
+      surface.style.setProperty('--signature-y', ((y / box.height - .5) * 8) + 'px');
+      surface.classList.add('pointer-active');
+      frame = 0;
+    });
+  });
+  surface.addEventListener('pointerleave', reset);
+  motion.addEventListener('change', reset);
+  precisePointer.addEventListener('change', reset);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) reset(); });
+});
