@@ -1,17 +1,97 @@
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.nav-links');
+const header = document.querySelector('.topbar');
 const year = document.getElementById('year');
+const progress = document.querySelector('.scroll-progress');
+const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-if (year) {
-  year.textContent = new Date().getFullYear();
+if (year) year.textContent = new Date().getFullYear();
+
+function closeMenu() {
+  nav?.classList.remove('open');
+  toggle?.setAttribute('aria-expanded', 'false');
+  toggle?.setAttribute('aria-label', 'Open navigation');
 }
-
 if (toggle && nav) {
   toggle.addEventListener('click', () => {
-    nav.classList.toggle('open');
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
   });
+  nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && nav.classList.contains('open')) {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+  document.addEventListener('click', event => {
+    if (!header?.contains(event.target)) closeMenu();
+  });
+  window.matchMedia('(min-width: 761px)').addEventListener('change', closeMenu);
+  document.documentElement.classList.add('js-ready');
+}
 
-  nav.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => nav.classList.remove('open'));
+// One scheduled update per frame; scrolling never changes layout.
+let scheduled = false;
+function updateScroll() {
+  const distance = document.documentElement.scrollHeight - window.innerHeight;
+  const fraction = distance > 0 ? Math.min(1, Math.max(0, window.scrollY / distance)) : 0;
+  if (progress) progress.style.transform = `scaleX(${fraction})`;
+  header?.classList.toggle('is-scrolled', window.scrollY > 24);
+  const sections = [...document.querySelectorAll('main > section[id]')];
+  const current = sections.filter(section => section.getBoundingClientRect().top <= 160).at(-1);
+  nav?.querySelectorAll('a').forEach(link => {
+    if (current && link.hash === `#${current.id}`) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  });
+  scheduled = false;
+}
+function scheduleScroll() {
+  if (!scheduled) {
+    scheduled = true;
+    requestAnimationFrame(updateScroll);
+  }
+}
+window.addEventListener('scroll', scheduleScroll, { passive: true });
+window.addEventListener('resize', scheduleScroll);
+updateScroll();
+
+// Reveal once when the work enters view. No dependency, scroll hijacking, or hidden fallback.
+let observer;
+const targets = [...document.querySelectorAll('.hero-copy > *, .hero-card, .section-heading, .about-card, .skills-list, .project-card, .contact-card')];
+function setupReveals() {
+  observer?.disconnect();
+  targets.forEach(el => {
+    el.classList.remove('is-pending');
+    el.classList.add('is-visible');
+  });
+  if (motion.matches || !('IntersectionObserver' in window)) return;
+  observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.remove('is-pending');
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
+  targets.forEach((el, index) => {
+    el.dataset.reveal = '';
+    el.style.setProperty('--reveal-delay', el.parentElement?.classList.contains('hero-copy') ? `${Math.min(index, 3) * 65}ms` : '0ms');
+    observer.observe(el);
+    el.classList.remove('is-visible');
+    el.classList.add('is-pending');
   });
 }
+setupReveals();
+motion.addEventListener('change', setupReveals);
+// Preserve browser find, anchor navigation, and keyboard access through pending content.
+document.addEventListener('focusin', event => {
+  const pending = event.target.closest?.('.is-pending');
+  if (pending) {
+    pending.classList.remove('is-pending');
+    pending.classList.add('is-visible');
+    observer?.unobserve(pending);
+  }
+});
+window.addEventListener('beforeprint', () => targets.forEach(el => el.classList.remove('is-pending')));
