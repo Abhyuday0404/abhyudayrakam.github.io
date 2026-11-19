@@ -31,6 +31,7 @@
         <nav class="nav-links" id="navigation" aria-label="Main navigation">
           <a href="#about">About</a>
           <a href="#projects">Projects</a>
+          <a href="#research">Research</a>
           <a href="#contact">Contact</a>
         </nav>
       </header>
@@ -126,9 +127,14 @@
             <article class="project-card">
               <div class="project-top">
                 <h3>GNIEM</h3>
-                <span>Geopolitical Intelligence Dashboard</span>
+                <span>Global news intelligence and event monitoring</span>
+                <span class="project-meta">Feb–May 2026</span>
+                <span class="project-stack">Python, DuckDB, BigQuery, FastAPI, React</span>
               </div>
-              <p>Developed a cost-optimized geopolitical intelligence dashboard using DuckDB, BigQuery, Prophet, Isolation Forest, TF-IDF, and K-Means for forecasting, anomaly detection, and event clustering.</p>
+              <div class="project-details">
+                <p>Contributed to DuckDB data access and hot/cold query routing on a team-built GDELT analytics platform: recent queries use DuckDB and Parquet; historical queries use BigQuery.</p>
+                <p>The platform merges results across tiers and supports daily and near-real-time ingestion and parallel backfills, with a FastAPI backend and React interface.</p>
+              </div>
             </article>
             <article class="project-card">
               <div class="project-top">
@@ -136,6 +142,37 @@
                 <span>Academic Background</span>
               </div>
               <p>Completed B.Tech in Computer Science and Engineering at Navrachana University and earned AWS Academy certifications in Cloud Foundations and Machine Learning Foundations.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="research" class="section" aria-labelledby="research-heading">
+          <div class="section-heading">
+            <h2 id="research-heading">Research</h2>
+          </div>
+          <div class="project-grid">
+            <article class="project-card">
+              <div class="project-top">
+                <h3>Microalgae identification and instance segmentation</h3>
+                <span>Research project</span>
+                <span class="project-meta">Aug 2025–Present</span>
+                <span class="project-stack">YOLOv11, PyTorch, SAHI, OpenCV, Streamlit, AWS</span>
+              </div>
+              <div class="project-details">
+                <p>Helped curate a microalgae dataset published on Harvard Dataverse and label microscope images; trained a YOLOv11 segmentation model on an AWS GPU for microscope images with up to 3,500 cells per frame.</p>
+                <p>Applied SAHI image tiling and built a Streamlit inference app with duplicate removal at tile boundaries. The six-person project reported mask mAP50 of 0.929.</p>
+              </div>
+            </article>
+            <article class="project-card">
+              <div class="project-top">
+                <h3>Research presentation</h3>
+                <span>Gujarat Biotechnology University</span>
+                <span class="project-meta">2026</span>
+              </div>
+              <div class="project-details">
+                <p>Co-authored and presented a systematic review of deep learning for microscopic algae detection and characterization.</p>
+                <p>Used PRISMA 2020 methodology, screening 130 records to 12 primary studies and comparing classification, detection and segmentation approaches.</p>
+              </div>
             </article>
           </div>
         </section>
