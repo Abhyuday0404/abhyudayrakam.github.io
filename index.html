@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Modern portfolio website built with HTML, CSS, and JavaScript" />
+    <title>Abhyuday Rakam | Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-orb orb-one"></div>
+    <div class="background-orb orb-two"></div>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="brand" href="#home">Abhyuday<span>.</span></a>
+        <button class="menu-toggle" aria-label="Toggle navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav class="nav-links">
+          <a href="#about">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
+
+      <main id="home">
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">Portfolio · AI, Data Engineering & Software Development</p>
+            <h1>Building AI-driven solutions that solve real-world problems.</h1>
+            <p class="hero-text">
+              Final-year Computer Science student with practical experience in machine learning, deep learning, data engineering, and AI application development. I enjoy creating systems that are scalable, explainable, and grounded in real-world needs.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#projects">View Projects</a>
+              <a class="btn btn-secondary" href="#contact">Contact Me</a>
+            </div>
+            <ul class="hero-stats">
+              <li><strong>3+</strong><span>Applied AI and data projects</span></li>
+              <li><strong>8.06</strong><span>B.Tech CGPA</span></li>
+              <li><strong>2</strong><span>Major end-to-end builds</span></li>
+            </ul>
+          </div>
+
+          <div class="hero-card reveal" aria-label="Profile preview">
+            <div class="avatar">AR</div>
+            <h2>Abhyuday Rakam</h2>
+            <p>Focused on AI systems, data pipelines, and scalable software development with practical implementation experience.</p>
+            <div class="chip-row">
+              <span>Python</span>
+              <span>Machine Learning</span>
+              <span>Agentic AI</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="about" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">About me</p>
+            <h2>Bridging technical depth with practical problem-solving.</h2>
+          </div>
+          <div class="about-grid">
+            <div class="about-card reveal">
+              <p>
+                I am a final-year Computer Science and Engineering student with hands-on experience in machine learning, deep learning, and data engineering. My work centers on building AI-powered systems that solve practical problems with clarity, reliability, and measurable impact.
+              </p>
+              <p>
+                I am especially interested in building intelligent applications, data pipelines, and generative AI systems that make advanced technology more useful and accessible in real-world contexts.
+              </p>
+            </div>
+            <div class="about-card highlight-card reveal">
+              <h3>What I bring</h3>
+              <ul>
+                <li>Machine learning and deep learning</li>
+                <li>Data engineering and analytics</li>
+                <li>Scalable AI application development</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Skills</p>
+            <h2>Core skills and technical strengths.</h2>
+          </div>
+          <div class="skills-list">
+            <span>Python</span>
+            <span>FastAPI</span>
+            <span>React</span>
+            <span>Vite</span>
+            <span>Tailwind CSS</span>
+            <span>Gemini</span>
+            <span>RAG</span>
+            <span>DataStax Astra DB</span>
+            <span>DuckDB</span>
+            <span>BigQuery</span>
+            <span>Machine Learning</span>
+            <span>Deep Learning</span>
+          </div>
+        </section>
+
+        <section id="projects" class="section">
+          <div class="section-heading">
+            <p class="eyebrow">Selected work</p>
+            <h2>Projects that reflect my focus on AI, data, and intelligent systems.</h2>
+          </div>
+          <div class="project-grid">
+            <article class="project-card">
+              <div class="project-top">
+                <h3>MedSwap</h3>
+                <span>RAG System</span>
+              </div>
+              <p>Built a medicine substitution assistant for Indian patients using a retrieval-augmented generation pipeline, Gemini embeddings, Astra DB, and a FastAPI + React workflow with source-grounded, low-hallucination responses.</p>
+            </article>
+            <article class="project-card">
+              <div class="project-top">
+                <h3>GNIEM</h3>
+                <span>Geopolitical Intelligence Dashboard</span>
+              </div>
+              <p>Developed a cost-optimized geopolitical intelligence dashboard using DuckDB, BigQuery, Prophet, Isolation Forest, TF-IDF, and K-Means for forecasting, anomaly detection, and event clustering.</p>
+            </article>
+            <article class="project-card">
+              <div class="project-top">
+                <h3>Education & Certifications</h3>
+                <span>Academic Background</span>
+              </div>
+              <p>Completed B.Tech in Computer Science and Engineering at Navrachana University and earned AWS Academy certifications in Cloud Foundations and Machine Learning Foundations.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="contact" class="section contact-section">
+          <div class="contact-card reveal">
+            <p class="eyebrow">Contact</p>
+            <h2>Let’s connect and build something meaningful.</h2>
+            <p>I’m open to opportunities in AI, data engineering, machine learning, and software development where I can contribute with curiosity, discipline, and hands-on implementation.</p>
+            <a class="btn btn-primary" href="mailto:abhyuday.rakam@nuv.ac.in">abhyuday.rakam@nuv.ac.in</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer>
+      <p>© <span id="year"></span> Abhyuday Rakam. All rights reserved.</p>
+    </footer>
+
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>
