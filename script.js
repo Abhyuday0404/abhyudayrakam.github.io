@@ -59,28 +59,40 @@ updateScroll();
 
 // Reveal once when the work enters view. No dependency, scroll hijacking, or hidden fallback.
 let observer;
-const targets = [...document.querySelectorAll('.hero-copy > *, .hero-card, .section-heading, .about-card, .skills-list > span, .project-card, .contact-card')];
+const revealGroups = [
+  '.hero-copy > *',
+  '.hero-card',
+  '.section-heading',
+  '.about-card',
+  '.skills-list > span',
+  '.project-card',
+  '.contact-card',
+  '.contact-form > .form-field',
+  '.contact-form > .form-actions'
+];
+const targets = [...document.querySelectorAll(revealGroups.join(', '))];
 function setupReveals() {
   observer?.disconnect();
+  observer = undefined;
   targets.forEach(el => {
     el.classList.remove('is-pending');
     el.classList.add('is-visible');
   });
   if (motion.matches || !('IntersectionObserver' in window)) return;
-  observer = new IntersectionObserver(entries => {
+  observer = new IntersectionObserver((entries, activeObserver) => {
+    if (observer !== activeObserver) return;
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       entry.target.classList.remove('is-pending');
       entry.target.classList.add('is-visible');
-      observer.unobserve(entry.target);
+      activeObserver.unobserve(entry.target);
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
-  targets.forEach((el, index) => {
+  }, { threshold: 0, rootMargin: '0px 0px -36px 0px' });
+  targets.forEach(el => {
     el.dataset.reveal = '';
-    const siblings = [...el.parentElement.children];
-    const delay = el.parentElement.classList.contains('skills-list')
-      ? (siblings.indexOf(el) % 6) * 45
-      : el.parentElement.classList.contains('hero-copy') ? Math.min(index, 3) * 65 : 0;
+    const siblings = [...el.parentElement.children].filter(sibling => sibling.matches(revealGroups.join(', ')));
+    const position = siblings.indexOf(el);
+    const delay = el.parentElement.classList.contains('skills-list') ? (position % 6) * 45 : Math.min(position, 3) * 65;
     el.style.setProperty('--reveal-delay', delay + 'ms');
     observer.observe(el);
     el.classList.remove('is-visible');
@@ -93,6 +105,7 @@ motion.addEventListener('change', setupReveals);
 document.addEventListener('focusin', event => {
   const pending = event.target.closest?.('.is-pending');
   if (pending) {
+    pending.removeAttribute('data-reveal');
     pending.classList.remove('is-pending');
     pending.classList.add('is-visible');
     observer?.unobserve(pending);

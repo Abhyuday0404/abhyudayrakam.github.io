@@ -93,10 +93,10 @@ footer a { display: inline-flex; align-items: center; gap: .7rem; text-decoratio
 footer a:hover { color: var(--accent); }
 /* Elements stay readable until the observer has successfully registered them. */
 [data-reveal] { transition: opacity 650ms var(--ease), transform 650ms var(--ease); }
-[data-reveal].is-pending { opacity: 0; transform: translateY(24px); }
+[data-reveal].is-pending { opacity: 0; transform: translateY(36px); }
 [data-reveal].is-visible { opacity: 1; transform: none; transition-delay: var(--reveal-delay, 0ms); }
 .project-card[data-reveal] { transition-duration: 750ms; }
-.project-card[data-reveal].is-pending { transform: translateX(-24px); }
+.project-card[data-reveal].is-pending { transform: translateY(44px) scale(.985); }
 @media (min-width: 901px) { .hero-card { position: sticky; top: 140px; } }
 @media (max-width: 1000px) { .hero { gap: 2.5rem; grid-template-columns: 1.5fr 1fr; } .about-grid { gap: 2.5rem; } .hero h1 { font-size: 3.9rem; } .hero-stats { gap: 1rem; } }
 @media (max-width: 760px) {
