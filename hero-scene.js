@@ -1,113 +1,159 @@
-const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const hero = document.querySelector('.hero');
-const canvas = document.querySelector('.hero-scene');
+const sequence = document.querySelector('.project-cinema');
 
-if (hero && canvas && !motion.matches && 'WebGL2RenderingContext' in window) {
-  const threeUrl = 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
-  import(/* @vite-ignore */ threeUrl).then(startScene).catch(error => {
-    console.warn('Portfolio hero animation unavailable', error);
+if (sequence) {
+  const stage = sequence.querySelector('.project-cinema-stage');
+  const canvas = sequence.querySelector('canvas');
+  const caption = sequence.querySelector('.project-cinema-caption');
+  const bar = sequence.querySelector('.project-cinema-progress span');
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const cards = [...document.querySelectorAll('#projects .project-top')].slice(0, 3);
+  const chapters = cards.map(card => {
+    const chapter = document.createElement('div');
+    chapter.className = 'project-cinema-chapter';
+    const title = document.createElement('strong');
+    const subtitle = document.createElement('span');
+    title.textContent = card.querySelector('h3').textContent;
+    subtitle.textContent = card.querySelector('span').textContent;
+    chapter.append(title, subtitle);
+    caption.append(chapter);
+    return chapter;
   });
+
+  let frame = null;
+  let renderScene;
+  let inView = false;
+  let loading = false;
+
+  function render() {
+    frame = null;
+    const stickyTop = parseFloat(getComputedStyle(stage).top) || 0;
+    const distance = Math.max(1, sequence.offsetHeight - stage.offsetHeight);
+    const progress = Math.max(0, Math.min(1, (stickyTop - sequence.getBoundingClientRect().top) / distance));
+    const chapterProgress = progress * (chapters.length - 1);
+    chapters.forEach((chapter, index) => {
+      const offset = index - chapterProgress;
+      const opacity = Math.max(0, 1 - Math.abs(offset));
+      chapter.style.opacity = String(opacity * opacity);
+      chapter.style.transform = 'translate3d(' + (offset * 8) + 'vw,' + (Math.abs(offset) * 45) + 'px,0) scale(' + (1 - Math.abs(offset) * 0.055) + ')';
+    });
+    bar.style.transform = 'scaleX(' + progress + ')';
+    renderScene?.(progress);
+  }
+
+  function schedule() {
+    if (!sequence.hidden && inView && frame === null) frame = requestAnimationFrame(render);
+  }
+
+  function updatePreference() {
+    sequence.hidden = motion.matches;
+    if (sequence.hidden) {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = null;
+      return;
+    }
+    schedule();
+    if (loading || !('WebGL2RenderingContext' in window)) return;
+    loading = true;
+    const threeUrl = 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
+    import(/* @vite-ignore */ threeUrl).then(THREE => {
+      renderScene = createScene(THREE, canvas, schedule);
+      schedule();
+    }).catch(() => { canvas.hidden = true; });
+  }
+
+  if (chapters.length === 3 && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      schedule();
+    }).observe(sequence);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    motion.addEventListener('change', updatePreference);
+    updatePreference();
+  }
 }
 
-function startScene(THREE) {
-  if (motion.matches) return;
-
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+function createScene(THREE, canvas, schedule) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 50);
-  camera.position.z = 8;
-  const panels = new THREE.Group();
-  scene.add(panels);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
+  camera.position.z = 1;
+  const uniforms = { progress: { value: 0 }, aspect: { value: 1 } };
+  const material = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position.xy, 0.0, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float progress;
+      uniform float aspect;
+      varying vec2 vUv;
 
-  const palette = [0xe3b876, 0x5d8eb8, 0xd6ab70, 0x426b92, 0xf0cb90, 0x6f93b0];
-  palette.forEach((color, index) => {
-    const geometry = new THREE.BoxGeometry(0.58 + index * 0.08, 4.9 - index * 0.18, 0.24);
-    const fill = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12, depthWrite: false });
-    const panel = new THREE.Mesh(geometry, fill);
-    const edge = new THREE.LineSegments(
-      new THREE.EdgesGeometry(geometry),
-      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.54 })
-    );
-    panel.add(edge);
-    panels.add(panel);
+      vec3 sceneAt(vec2 p, float chapter, float travel) {
+        vec3 gold = vec3(0.87, 0.58, 0.26);
+        vec3 teal = vec3(0.21, 0.76, 0.68);
+        vec3 blue = vec3(0.33, 0.52, 0.93);
+        vec3 tint = mix(mix(gold, teal, step(0.5, chapter)), blue, step(1.5, chapter));
+        float x = p.x;
+        float wave = sin(x * (2.2 + chapter * 1.55) + travel + chapter * 1.8);
+        float ridge = p.y - 0.38 - wave * (0.13 + chapter * 0.035);
+        float lanes = abs(fract(ridge * 15.0 + sin(x * 3.5) * 0.41) - 0.5);
+        float threads = 1.0 - smoothstep(0.016, 0.078, lanes);
+        float band = exp(-abs(ridge) * 3.5);
+        float light = exp(-length(vec2(x - 0.32, p.y - 0.38)) * 2.2);
+        return vec3(0.045, 0.067, 0.105) + tint * (0.48 * threads * band + light * 0.57);
+      }
+
+      void main() {
+        float beat = progress * 2.0;
+        float chapter = floor(beat);
+        float blend = smoothstep(0.08, 0.92, fract(beat));
+        vec2 p = vUv - 0.5;
+        p.x *= aspect;
+        p /= 1.0 + progress * 0.48;
+        p.y += sin(p.x * 2.5 + progress * 2.5) * (0.08 + progress * 0.13);
+        vec3 color = mix(sceneAt(p, chapter, beat * 2.5),
+          sceneAt(p, min(chapter + 1.0, 2.0), beat * 2.5), blend);
+        float shade = mix(0.33, 1.0, smoothstep(0.12, 0.78, vUv.y));
+        gl_FragColor = vec4(color * shade, 1.0);
+      }
+    `
   });
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
 
-  let inView = false;
+  let width = 0;
+  let height = 0;
   let contextLost = false;
-  let frame = null;
-  let previousTime = null;
-  let elapsed = 0;
-  let pointerX = 0;
-  let pointerY = 0;
-  let centerX = 0;
-
-  function resize() {
-    const { width, height } = canvas.getBoundingClientRect();
-    if (!width || !height) return;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    renderer.setSize(width, height, false);
-    centerX = width > 760 ? Math.min(2.5, camera.aspect * 1.05) : 0;
-  }
-
-  function draw(time) {
-    elapsed += previousTime === null ? 0 : Math.min((time - previousTime) / 1000, 0.05);
-    previousTime = time;
-    const bounds = hero.getBoundingClientRect();
-    const scroll = THREE.MathUtils.clamp(-bounds.top / Math.max(bounds.height, 1), 0, 1);
-    const entrance = 1 - Math.exp(-elapsed * 2.2);
-    const spread = 0.62 + entrance * 0.4 + scroll * 1.8;
-    panels.position.set(centerX + pointerX * 0.35 + scroll * 1.1, scroll * 1.9, -scroll * 1.2);
-    panels.rotation.set(pointerY * 0.15 + scroll * 0.74, 0.28 + scroll * 1.22, -0.44 + scroll * 0.75);
-    panels.scale.setScalar((camera.aspect < 1 ? 0.65 : 1) * (0.75 + entrance * 0.25 + scroll * 0.25));
-
-    panels.children.forEach((panel, index) => {
-      const offset = index - 2.5;
-      panel.position.set(offset * spread, offset * 0.3, -Math.abs(offset) * 0.46);
-      panel.rotation.set(0.12 * offset, offset * (0.16 + scroll * 0.2), Math.sin(elapsed * 0.8 + index) * 0.06);
-      panel.material.opacity = (0.1 + index * 0.016) * (1 - scroll * 0.55);
-    });
-
-    renderer.render(scene, camera);
-    frame = requestAnimationFrame(draw);
-  }
-
-  function syncAnimation() {
-    const enabled = !motion.matches && !contextLost;
-    canvas.classList.toggle('is-active', enabled);
-    if (enabled && inView && !document.hidden) {
-      if (frame === null) frame = requestAnimationFrame(draw);
-    } else if (frame !== null) {
-      cancelAnimationFrame(frame);
-      frame = null;
-      previousTime = null;
-    }
-  }
-
-  resize();
-  new ResizeObserver(resize).observe(hero);
-  new IntersectionObserver(([entry]) => {
-    inView = entry.isIntersecting;
-    syncAnimation();
-  }).observe(hero);
-  hero.addEventListener('pointermove', event => {
-    if (event.pointerType === 'touch') return;
-    const bounds = hero.getBoundingClientRect();
-    pointerX = (event.clientX - bounds.left) / bounds.width * 2 - 1;
-    pointerY = 1 - (event.clientY - bounds.top) / bounds.height * 2;
-  }, { passive: true });
-  hero.addEventListener('pointerleave', () => { pointerX = pointerY = 0; });
-  document.addEventListener('visibilitychange', syncAnimation);
-  motion.addEventListener('change', syncAnimation);
   canvas.addEventListener('webglcontextlost', event => {
     event.preventDefault();
     contextLost = true;
-    syncAnimation();
+    canvas.style.visibility = 'hidden';
   });
   canvas.addEventListener('webglcontextrestored', () => {
     contextLost = false;
-    resize();
-    syncAnimation();
+    canvas.style.visibility = '';
+    width = height = 0;
+    schedule();
   });
+  new ResizeObserver(schedule).observe(canvas);
+
+  return progress => {
+    if (contextLost) return;
+    const nextWidth = canvas.clientWidth;
+    const nextHeight = canvas.clientHeight;
+    if (!nextWidth || !nextHeight) return;
+    if (width !== nextWidth || height !== nextHeight) {
+      width = nextWidth;
+      height = nextHeight;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.setSize(width, height, false);
+      uniforms.aspect.value = width / height;
+    }
+    uniforms.progress.value = progress;
+    renderer.render(scene, camera);
+  };
 }

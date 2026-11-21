@@ -237,3 +237,42 @@ footer a:hover svg, footer a:focus-visible svg { transform: translateY(-3px); }
     transform: perspective(1000px) translateY(clamp(65px, 12vw, 145px)) rotateX(-12deg) scale(.91);
   }
 }
+
+.project-cinema { height: 225svh; margin-bottom: clamp(2rem, 6vw, 5rem); }
+.project-cinema[hidden] { display: none; }
+.project-cinema-stage {
+  position: sticky;
+  top: 100px;
+  height: min(74svh, 780px);
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--border);
+  background: #0e1420;
+}
+.project-cinema-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, #0e1420 3%, transparent 75%),
+    radial-gradient(ellipse at 78% 28%, #3f4b66, transparent 68%);
+}
+.project-cinema-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.project-cinema-caption { position: absolute; inset: auto 8% 12%; display: grid; }
+.project-cinema-chapter { grid-area: 1 / 1; opacity: 0; }
+.project-cinema-chapter strong {
+  display: block;
+  font: 500 clamp(3.8rem, 10vw, 10rem)/.9 'Cormorant Garamond', Georgia, serif;
+  color: #f7efe3;
+  letter-spacing: -.045em;
+}
+.project-cinema-chapter span { display: block; margin: 1em 0 0; color: #e2c89d; font-size: clamp(.85rem, 2vw, 1.2rem); }
+.project-cinema-progress { position: absolute; inset: auto 8% 6%; height: 2px; background: #e2c89d55; }
+.project-cinema-progress span { display: block; height: 100%; background: #e2c89d; transform: scaleX(0); transform-origin: left; }
+@media (max-width: 760px) {
+  .project-cinema { height: 192svh; }
+  .project-cinema-stage { top: 76px; height: 62svh; }
+}
+@media (prefers-reduced-motion: reduce), print {
+  .project-cinema { display: none; }
+}
