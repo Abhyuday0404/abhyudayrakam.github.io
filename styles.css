@@ -225,3 +225,25 @@ footer a:hover svg, footer a:focus-visible svg { transform: translateY(-3px); }
 @media (max-width: 760px) { .contact-form { grid-template-columns: 1fr; gap: 2rem; margin-top: 2.5rem; } }
 
 .field-help { display: block; margin-top: .6rem; color: var(--muted); font-size: .73rem; line-height: 1.6; }
+
+/* Keep the decorative scene behind the hero content and out of the tab order. */
+.hero { isolation: isolate; }
+.hero-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  mask-image: radial-gradient(ellipse at 70% 48%, #000 10%, transparent 74%);
+  transition: opacity 1.25s ease;
+}
+.hero-scene.is-active { opacity: .85; }
+@media (max-width: 760px) {
+  .hero-scene { mask-image: radial-gradient(ellipse at 50% 64%, #000, transparent 65%); }
+  .hero-scene.is-active { opacity: .5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scene { display: none; }
+}
