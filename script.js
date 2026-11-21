@@ -70,7 +70,8 @@ const revealGroups = [
   '.contact-form > .form-field',
   '.contact-form > .form-actions'
 ];
-const targets = [...document.querySelectorAll(revealGroups.join(', '))];
+const revealSelector = revealGroups.join(', ');
+const targets = [...document.querySelectorAll(revealSelector)];
 function setupReveals() {
   observer?.disconnect();
   observer = undefined;
@@ -87,10 +88,10 @@ function setupReveals() {
       entry.target.classList.add('is-visible');
       activeObserver.unobserve(entry.target);
     });
-  }, { threshold: 0, rootMargin: '0px 0px -36px 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px 64px 0px' });
   targets.forEach(el => {
     el.dataset.reveal = '';
-    const siblings = [...el.parentElement.children].filter(sibling => sibling.matches(revealGroups.join(', ')));
+    const siblings = [...el.parentElement.children].filter(sibling => sibling.matches(revealSelector));
     const position = siblings.indexOf(el);
     const delay = el.parentElement.classList.contains('skills-list') ? (position % 6) * 45 : Math.min(position, 3) * 65;
     el.style.setProperty('--reveal-delay', delay + 'ms');

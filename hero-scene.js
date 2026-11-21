@@ -16,41 +16,21 @@ function startScene(THREE) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 50);
   camera.position.z = 8;
-  const orbits = new THREE.Group();
-  scene.add(orbits);
+  const panels = new THREE.Group();
+  scene.add(panels);
 
-  const ringColors = [0xe1b86d, 0x648baf, 0xdabf94];
-  ringColors.forEach((color, index) => {
-    const points = Array.from({ length: 121 }, (_, step) => {
-      const angle = step / 120 * Math.PI * 2;
-      return new THREE.Vector3(Math.cos(angle) * (1.5 + index * 0.3), Math.sin(angle) * 0.72, 0);
-    });
-    const ring = new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints(points),
-      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.35 - index * 0.06 })
+  const palette = [0xe3b876, 0x5d8eb8, 0xd6ab70, 0x426b92, 0xf0cb90, 0x6f93b0];
+  palette.forEach((color, index) => {
+    const geometry = new THREE.BoxGeometry(0.58 + index * 0.08, 4.9 - index * 0.18, 0.24);
+    const fill = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12, depthWrite: false });
+    const panel = new THREE.Mesh(geometry, fill);
+    const edge = new THREE.LineSegments(
+      new THREE.EdgesGeometry(geometry),
+      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.54 })
     );
-    ring.rotation.set(0.3 + index * 0.56, 0.2 + index * 0.37, index * 0.65 - 0.28);
-    orbits.add(ring);
-    const satellite = new THREE.Mesh(
-      new THREE.SphereGeometry(0.035, 12, 8),
-      new THREE.MeshBasicMaterial({ color })
-    );
-    ring.add(satellite);
+    panel.add(edge);
+    panels.add(panel);
   });
-
-  const positions = new Float32Array(180 * 3);
-  for (let index = 0; index < positions.length; index += 3) {
-    positions[index] = (Math.random() - 0.5) * 15;
-    positions[index + 1] = (Math.random() - 0.5) * 9;
-    positions[index + 2] = (Math.random() - 0.5) * 5;
-  }
-  const dustGeometry = new THREE.BufferGeometry();
-  dustGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const dust = new THREE.Points(
-    dustGeometry,
-    new THREE.PointsMaterial({ color: 0xd5b77d, size: 0.026, transparent: true, opacity: 0.48, depthWrite: false })
-  );
-  scene.add(dust);
 
   let inView = false;
   let contextLost = false;
@@ -74,17 +54,19 @@ function startScene(THREE) {
   function draw(time) {
     elapsed += previousTime === null ? 0 : Math.min((time - previousTime) / 1000, 0.05);
     previousTime = time;
-    const easing = 1 - Math.exp(-elapsed * 1.8);
-    orbits.position.x += (centerX + pointerX * 0.35 - orbits.position.x) * 0.055;
-    orbits.rotation.x += (pointerY * 0.25 - orbits.rotation.x) * 0.05;
-    orbits.rotation.y = elapsed * 0.18;
-    orbits.rotation.z = -0.2 + elapsed * 0.05;
-    orbits.scale.setScalar(0.82 + easing * 0.18);
-    dust.rotation.y = elapsed * 0.035;
+    const bounds = hero.getBoundingClientRect();
+    const scroll = THREE.MathUtils.clamp(-bounds.top / Math.max(bounds.height, 1), 0, 1);
+    const entrance = 1 - Math.exp(-elapsed * 2.2);
+    const spread = 0.62 + entrance * 0.4 + scroll * 1.8;
+    panels.position.set(centerX + pointerX * 0.35 + scroll * 1.1, scroll * 1.9, -scroll * 1.2);
+    panels.rotation.set(pointerY * 0.15 + scroll * 0.74, 0.28 + scroll * 1.22, -0.44 + scroll * 0.75);
+    panels.scale.setScalar((camera.aspect < 1 ? 0.65 : 1) * (0.75 + entrance * 0.25 + scroll * 0.25));
 
-    orbits.children.forEach((ring, index) => {
-      const angle = elapsed * (0.75 + index * 0.22) + index * 2;
-      ring.children[0].position.set(Math.cos(angle) * (1.5 + index * 0.3), Math.sin(angle) * 0.72, 0);
+    panels.children.forEach((panel, index) => {
+      const offset = index - 2.5;
+      panel.position.set(offset * spread, offset * 0.3, -Math.abs(offset) * 0.46);
+      panel.rotation.set(0.12 * offset, offset * (0.16 + scroll * 0.2), Math.sin(elapsed * 0.8 + index) * 0.06);
+      panel.material.opacity = (0.1 + index * 0.016) * (1 - scroll * 0.55);
     });
 
     renderer.render(scene, camera);
@@ -104,7 +86,6 @@ function startScene(THREE) {
   }
 
   resize();
-  orbits.position.x = centerX;
   new ResizeObserver(resize).observe(hero);
   new IntersectionObserver(([entry]) => {
     inView = entry.isIntersecting;

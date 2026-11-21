@@ -148,13 +148,8 @@ footer a:hover { color: var(--accent); }
 .project-link { display: inline-flex; align-items: center; gap: .45rem; margin-top: 1rem; padding-block: .4rem; color: var(--accent); font-size: .78rem; }
 .project-link:hover { color: var(--text); }
 
-/* A drawn signature: geometry supports the existing monogram, not a new logo. */
 .avatar { position: relative; width: 240px; max-width: 100%; height: 180px; display: grid; place-items: center; isolation: isolate; }
-.signature-orbit { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.orbit-track { stroke: var(--accent); stroke-width: .7; opacity: .55; }
-.orbit-cross { stroke: var(--accent); stroke-width: .5; opacity: .2; }
-.orbit-point { fill: var(--accent); }
-.monogram { display: block; position: relative; background: var(--bg); padding: 0 .08em; line-height: .9; }
+.monogram { display: block; position: relative; padding: 0 .08em; line-height: .9; }
 .word-window { display: inline-block; overflow: clip; vertical-align: bottom; padding-bottom: .12em; margin-bottom: -.12em; }
 .word-window > span { display: inline-block; }
 .btn-primary { position: relative; overflow: hidden; isolation: isolate; }
@@ -171,8 +166,6 @@ footer a:hover svg, footer a:focus-visible svg { transform: translateY(-3px); }
   .hero h1.is-pending .word-window > span { transform: translateY(110%); }
   .hero h1.is-visible .word-window > span { animation: headline-arrive 850ms var(--ease) both; }
   .hero h1.is-visible .word-window:nth-child(2) > span { animation-delay: 100ms; }
-  .hero-card.is-visible .orbit-track { animation: orbit-draw 1400ms var(--ease) both; }
-  .hero-card.is-visible .orbit-cross, .hero-card.is-visible .orbit-point { animation: signature-appear 800ms ease 450ms both; }
   .section-heading.is-pending::after { transform: scaleX(0); }
   .section-heading.is-visible::after { transition: transform 850ms var(--ease) 100ms; transform: scaleX(1); }
   .btn-primary:hover::after, .btn-primary:focus-visible::after { animation: button-light 650ms var(--ease); }
@@ -187,15 +180,12 @@ footer a:hover svg, footer a:focus-visible svg { transform: translateY(-3px); }
   .skills-list span { transition-property: opacity, transform, translate, color, border-color; }
 }
 @keyframes headline-arrive { from { transform: translateY(110%); } to { transform: translateY(0); } }
-@keyframes orbit-draw { from { stroke-dasharray: 1; stroke-dashoffset: 1; rotate: -12deg; transform-origin: center; } to { stroke-dasharray: 1; stroke-dashoffset: 0; rotate: 0deg; transform-origin: center; } }
-@keyframes signature-appear { from { opacity: 0; } }
 @keyframes button-light { to { transform: translateX(130%); } }
 @media (max-width: 760px) {
   .hero-card .avatar { width: 70px; height: 80px; }
-  .signature-orbit { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .word-window > span, .orbit-track, .orbit-cross, .orbit-point, .btn-primary::after { animation: none !important; }
+  .word-window > span, .btn-primary::after { animation: none !important; }
   .hero-card .avatar, .project-top h3, .project-link svg, footer a svg { translate: none; transform: none; transition: color 150ms; }
 }
 /* Leave room for the serif's italic overhang during the headline reveal. */
@@ -246,4 +236,31 @@ footer a:hover svg, footer a:focus-visible svg { transform: translateY(-3px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-scene { display: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .section-heading[data-reveal], .contact-card[data-reveal] {
+    transition: opacity 900ms var(--ease), transform 1050ms var(--ease), clip-path 1050ms var(--ease);
+    clip-path: inset(-12% -5% -28% -5%);
+  }
+  .section-heading[data-reveal].is-pending, .contact-card[data-reveal].is-pending {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(clamp(45px, 9vw, 110px)) scale(.92);
+    transform-origin: left bottom;
+  }
+  .project-card[data-reveal], .about-card[data-reveal] {
+    transition: opacity 900ms var(--ease), transform 1100ms var(--ease);
+  }
+  .project-card[data-reveal].is-pending, .about-card[data-reveal].is-pending {
+    transform: perspective(1000px) translateY(clamp(65px, 12vw, 145px)) rotateX(14deg) scale(.91);
+    transform-origin: center bottom;
+  }
+  .project-card:nth-child(even)[data-reveal].is-pending {
+    transform: perspective(1000px) translateY(clamp(65px, 12vw, 145px)) rotateX(-12deg) scale(.91);
+  }
+}
+.hero-scene { mask-image: linear-gradient(90deg, transparent 12%, #000 58%); }
+@media (max-width: 760px) {
+  .hero-scene { mask-image: linear-gradient(180deg, transparent 12%, #000 58%, transparent); }
+  .hero-scene.is-active { opacity: .65; }
 }
